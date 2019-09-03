@@ -48,16 +48,24 @@ server.get("/api/users", (req, res) => {
 });
 
 // Get ID
-server.get("/api/users/:id", (req, res) => {
-  const userId = req.params.id;
-  Users.findById(userId)
-    .then(userId => {
-      res.status(200).json(userId);
+server.get('/api/users/:id', (req, res) => {
+  Users.findById(req.params.id)
+    .then(user => {
+      if (user) {
+        res.status(200).json(user);
+      } else {
+        res
+          .status(404)
+          .json({ message: 'The user with the specified ID does not exist.' });
+      }
     })
-    .catch(error => {
-      res.status(404).json({ message: "The user with the specified ID does not exist." });
+    .catch(() => {
+      res
+        .status(500)
+        .json({ errorMessage: 'The user information could not be retrieved.' });
     });
 });
+
 
 // Update
 server.put("/api/users/:id", (req, res) => {
@@ -83,10 +91,18 @@ server.delete("/api/users/:id", (req, res) => {
   const userId = req.params.id;
   Users.remove(userId)
     .then(user => {
-      res.status(200).json({ message: "User deleted successfully!" });
+      if (user && user > 0) {
+        res.status(200).json({
+          message: 'the user was deleted.',
+        });
+      } else {
+        res
+          .status(404)
+          .json({ message: 'The user with the specified ID does not exist.' });
+      }
     })
-    .catch(error => {
-      res.status(404).json({ message: "The user with the specified ID does not exist." });
+    .catch(() => {
+      res.status(500).json({ errorMessage: 'The user could not be removed' });
     });
 });
 
